@@ -3,82 +3,73 @@ package main
 import (
 	"bytes"
 	"crypto/md5"
-	"encoding/hex"
 	"fmt"
 	"io"
 	"io/fs"
-	"log"
 	"os"
 	"path/filepath"
-)
 
-type FileSign struct {
-	path        []string
-	size        int
-	hash        []byte
-	occurencies int
-}
+	"github.com/file-duplicate-search/search/fileSign"
+	"github.com/file-duplicate-search/search/utility"
+)
 
 func main() {
 	dirToSearch := os.Args[1:][0]
-	currentMD5Map := []FileSign{}
+	currentMD5Map := []fileSign.FileSign{}
+
 	err := filepath.WalkDir(dirToSearch, func(path string, d fs.DirEntry, err error) error {
 		if !d.IsDir() {
-			file, err := os.Open(path)
-			if err != nil {
-				panic(err)
-			}
-			defer file.Close()
-
-			hash := md5.New()
-			_, _ = io.Copy(hash, file)
-			md5hash := hash.Sum(nil)
-			fileExists := doesFileExistInResult(currentMD5Map, md5hash)
+			md5Hash, size := createMD5HashFromFile(path)
+			fileExists := doesFileExistInResult(currentMD5Map, md5Hash)
 
 			if !fileExists {
-				stats, _ := file.Stat()
-				fileSign := FileSign{
-					path:        []string{path},
-					size:        int(stats.Size()),
-					hash:        hash.Sum(nil),
-					occurencies: 1,
+				processedFile := fileSign.FileSign{
+					Path:        []string{path},
+					Size:        size,
+					Hash:        md5Hash,
+					Occurencies: 1,
 				}
-				currentMD5Map = append(currentMD5Map, fileSign)
-				fmt.Println("created")
+				currentMD5Map = append(currentMD5Map, processedFile)
 			} else {
-				addOccurency(currentMD5Map, md5hash, path)
+				addOccurency(currentMD5Map, md5Hash, path)
 			}
 		}
 
 		return nil
 	})
 	if err != nil {
-		log.Fatalf("impossible to walk directories: %s", err)
+		utility.LogError(
+			fmt.Sprintf("Error reading directory: %s", err))
 	}
 	diplayResult(currentMD5Map)
 }
 
-func diplayResult(result []FileSign) {
+func diplayResult(result []fileSign.FileSign) {
 	for _, element := range result {
-		fmt.Println(getStringRepresentationOfMD5Sum(element.hash))
-		fmt.Println(element.size)
-		fmt.Printf("%d times! \n", element.occurencies)
-		fmt.Println("In paths:")
-		for index, element := range element.path {
-			fmt.Printf("\n%d %s", index, element)
+		if element.Occurencies > 1 {
+			element.DisplayInfo()
 		}
-		savedBytes := (element.occurencies - 1) * element.size
-		fmt.Printf("\nYou can save %d bytes\n", savedBytes)
 	}
 }
 
-func getStringRepresentationOfMD5Sum(sum []byte) string {
-	return hex.EncodeToString(sum[:])
+func createMD5HashFromFile(filePath string) ([]byte, int) {
+	file, err := os.Open(filePath)
+	if err != nil {
+		panic(err)
+	}
+	defer file.Close()
+
+	hash := md5.New()
+	_, _ = io.Copy(hash, file)
+	fileStats, _ := file.Stat()
+	fileSize := fileStats.Size()
+
+	return hash.Sum(nil), int(fileSize)
 }
 
-func doesFileExistInResult(actualResult []FileSign, hash []byte) bool {
+func doesFileExistInResult(actualResult []fileSign.FileSign, hash []byte) bool {
 	for _, element := range actualResult {
-		if bytes.Equal(element.hash, hash) {
+		if bytes.Equal(element.Hash, hash) {
 			return true
 		}
 	}
@@ -86,12 +77,10 @@ func doesFileExistInResult(actualResult []FileSign, hash []byte) bool {
 	return false
 }
 
-func addOccurency(actualResult []FileSign, hash []byte, path string) {
+func addOccurency(actualResult []fileSign.FileSign, hash []byte, path string) {
 	for index, element := range actualResult {
-		if bytes.Equal(element.hash, hash) {
-			fmt.Println("added")
-			actualResult[index].occurencies += 1
-			actualResult[index].path = append(actualResult[index].path, path)
+		if element.IsHashEqual(hash) {
+			actualResult[index].AddPath(path)
 		}
 	}
 }
