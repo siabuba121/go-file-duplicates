@@ -1,7 +1,6 @@
 package main
 
 import (
-	"bytes"
 	"crypto/md5"
 	"fmt"
 	"io"
@@ -10,17 +9,20 @@ import (
 	"path/filepath"
 
 	"github.com/file-duplicate-search/search/fileSign"
+	"github.com/file-duplicate-search/search/prompt"
 	"github.com/file-duplicate-search/search/utility"
 )
 
 func main() {
 	dirToSearch := os.Args[1:][0]
-	currentMD5Map := []fileSign.FileSign{}
+	fileSignCollection := fileSign.FileSignCollection{
+		FileSigns: []fileSign.FileSign{},
+	}
 
 	err := filepath.WalkDir(dirToSearch, func(path string, d fs.DirEntry, err error) error {
 		if !d.IsDir() {
 			md5Hash, size := createMD5HashFromFile(path)
-			fileExists := doesFileExistInResult(currentMD5Map, md5Hash)
+			fileExists := fileSignCollection.DoesFileExistInResult(md5Hash)
 
 			if !fileExists {
 				processedFile := fileSign.FileSign{
@@ -29,9 +31,9 @@ func main() {
 					Hash:        md5Hash,
 					Occurencies: 1,
 				}
-				currentMD5Map = append(currentMD5Map, processedFile)
+				fileSignCollection.AddFileSign(processedFile)
 			} else {
-				addOccurency(currentMD5Map, md5Hash, path)
+				fileSignCollection.AddOccurency(md5Hash, path)
 			}
 		}
 
@@ -41,15 +43,9 @@ func main() {
 		utility.LogError(
 			fmt.Sprintf("Error reading directory: %s", err))
 	}
-	diplayResult(currentMD5Map)
-}
 
-func diplayResult(result []fileSign.FileSign) {
-	for _, element := range result {
-		if element.Occurencies > 1 {
-			element.DisplayInfo()
-		}
-	}
+	fileSignCollection.DiplayResult()
+	prompt.AskIfDuplicatesShouldBeRemoved()
 }
 
 func createMD5HashFromFile(filePath string) ([]byte, int) {
@@ -65,22 +61,4 @@ func createMD5HashFromFile(filePath string) ([]byte, int) {
 	fileSize := fileStats.Size()
 
 	return hash.Sum(nil), int(fileSize)
-}
-
-func doesFileExistInResult(actualResult []fileSign.FileSign, hash []byte) bool {
-	for _, element := range actualResult {
-		if bytes.Equal(element.Hash, hash) {
-			return true
-		}
-	}
-
-	return false
-}
-
-func addOccurency(actualResult []fileSign.FileSign, hash []byte, path string) {
-	for index, element := range actualResult {
-		if element.IsHashEqual(hash) {
-			actualResult[index].AddPath(path)
-		}
-	}
 }
