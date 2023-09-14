@@ -2,6 +2,7 @@ package main
 
 import (
 	"crypto/md5"
+	"flag"
 	"fmt"
 	"io"
 	"io/fs"
@@ -13,15 +14,29 @@ import (
 	"github.com/file-duplicate-search/search/utility"
 )
 
+var minSize int
+var directoryToSearch string
+
+func init() {
+	flag.IntVar(&minSize, "s", -1, "Optional parameter used to specify minimum file size")
+	flag.StringVar(&directoryToSearch, "d", "", "Directory to search for duplicates")
+}
+
 func main() {
-	dirToSearch := os.Args[1:][0]
+	flag.Parse()
+
 	fileSignCollection := fileSign.FileSignCollection{
 		FileSigns: []fileSign.FileSign{},
 	}
 
-	err := filepath.WalkDir(dirToSearch, func(path string, d fs.DirEntry, err error) error {
+	err := filepath.WalkDir(directoryToSearch, func(path string, d fs.DirEntry, err error) error {
 		if !d.IsDir() {
 			md5Hash, size := createMD5HashFromFile(path)
+
+			if minSize != -1 && size < minSize {
+				return nil
+			}
+
 			fileExists := fileSignCollection.DoesFileExistInResult(md5Hash)
 
 			if !fileExists {
