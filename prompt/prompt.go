@@ -5,6 +5,8 @@ import (
 	"os"
 	"strings"
 
+	"github.com/AlecAivazis/survey/v2"
+	"github.com/file-duplicate-search/search/strategy"
 	"github.com/file-duplicate-search/search/utility"
 )
 
@@ -13,6 +15,17 @@ const INVALID_ANSWER_MESSAGE = "Provided answer is not valid!"
 
 func getPossibelYesNoAnswers() []string {
 	return []string{"Y", "N"}
+}
+
+func SelectStrategyQuestion() string {
+	chosenStrategy := ""
+	prompt := &survey.Select{
+		Message: "Which strategy should be used for found file duplicates?",
+		Options: []string{strategy.STRATEGY_DO_FOR_ALL, strategy.STRATEGY_GO_THROUGH_ONE_BY_ONE},
+	}
+	survey.AskOne(prompt, &chosenStrategy)
+
+	return chosenStrategy
 }
 
 func AskIfDuplicatesShouldBeRemoved() bool {

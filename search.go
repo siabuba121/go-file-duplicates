@@ -11,6 +11,7 @@ import (
 
 	"github.com/file-duplicate-search/search/fileSign"
 	"github.com/file-duplicate-search/search/prompt"
+	"github.com/file-duplicate-search/search/strategy"
 	"github.com/file-duplicate-search/search/utility"
 )
 
@@ -60,7 +61,19 @@ func main() {
 	}
 
 	fileSignCollection.DiplayResult()
-	prompt.AskIfDuplicatesShouldBeRemoved()
+	chosenStrategy := prompt.SelectStrategyQuestion()
+
+	var chosenStrategyObj strategy.Strategy
+
+	if chosenStrategy == strategy.STRATEGY_DO_FOR_ALL {
+		chosenStrategyObj = strategy.CreateDoForAllStrategy()
+	} else if chosenStrategy == strategy.STRATEGY_GO_THROUGH_ONE_BY_ONE {
+		chosenStrategyObj = strategy.CreateDoOneByOneStrategy()
+	} else {
+		panic("Not known strategy!")
+	}
+
+	chosenStrategyObj.Run()
 }
 
 func createMD5HashFromFile(filePath string) ([]byte, int) {
