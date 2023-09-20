@@ -6,6 +6,16 @@ type FileSignCollection struct {
 	FileSigns []FileSign
 }
 
+func (FileSignCollection FileSignCollection) IsThereAnyDuplicate() bool {
+	for _, fileSign := range FileSignCollection.FileSigns {
+		if fileSign.Occurencies != 1 {
+			return true
+		}
+	}
+
+	return false
+}
+
 func (FileSignCollection *FileSignCollection) DiplayResult() {
 	for _, fileSign := range FileSignCollection.FileSigns {
 		if fileSign.Occurencies > 1 {

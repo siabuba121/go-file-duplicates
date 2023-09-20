@@ -60,20 +60,25 @@ func main() {
 			fmt.Sprintf("Error reading directory: %s", err))
 	}
 
+	if !fileSignCollection.IsThereAnyDuplicate() {
+		utility.LogSuccess("No duplicates found")
+		os.Exit(1)
+	}
+
 	fileSignCollection.DiplayResult()
 	chosenStrategy := prompt.SelectStrategyQuestion()
 
 	var chosenStrategyObj strategy.Strategy
 
-	if chosenStrategy == strategy.STRATEGY_DO_FOR_ALL {
+	if chosenStrategy == prompt.STRATEGY_DO_FOR_ALL {
 		chosenStrategyObj = strategy.CreateDoForAllStrategy()
-	} else if chosenStrategy == strategy.STRATEGY_GO_THROUGH_ONE_BY_ONE {
+	} else if chosenStrategy == prompt.STRATEGY_GO_THROUGH_ONE_BY_ONE {
 		chosenStrategyObj = strategy.CreateDoOneByOneStrategy()
 	} else {
 		panic("Not known strategy!")
 	}
 
-	chosenStrategyObj.Run()
+	chosenStrategyObj.Run(fileSignCollection)
 }
 
 func createMD5HashFromFile(filePath string) ([]byte, int) {

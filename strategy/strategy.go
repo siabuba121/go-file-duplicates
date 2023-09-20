@@ -1,5 +1,7 @@
 package strategy
 
+import "github.com/file-duplicate-search/search/fileSign"
+
 type Strategy interface {
-	Run()
+	Run(fileSignCollection fileSign.FileSignCollection)
 }
