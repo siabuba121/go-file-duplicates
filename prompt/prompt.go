@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/AlecAivazis/survey/v2"
+	"github.com/file-duplicate-search/search/fileSign"
 	"github.com/file-duplicate-search/search/prompt/messages"
 	"github.com/file-duplicate-search/search/utility"
 )
@@ -96,4 +97,22 @@ func SelectDoForAllAction() string {
 	fmt.Println("")
 
 	return chosenAction
+}
+
+func PrintSummaryBasedOnFileSignCollection(fileSignCollection fileSign.FileSignCollection) {
+	deletedFiles := 0
+	spaceSaved := 0
+
+	for _, fileSign := range fileSignCollection.FileSigns {
+		deletedFiles += fileSign.Occurencies - 1
+		spaceSaved += (fileSign.Occurencies - 1) * fileSign.Size
+	}
+
+	utility.LogSuccess(
+		fmt.Sprintf(
+			"%d files were deleted,\n%d kb of space saved.",
+			deletedFiles,
+			spaceSaved,
+		),
+	)
 }

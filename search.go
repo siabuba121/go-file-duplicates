@@ -80,6 +80,7 @@ func main() {
 	}
 
 	chosenStrategyObj.Run(fileSignCollection)
+	prompt.PrintSummaryBasedOnFileSignCollection(fileSignCollection)
 }
 
 func createMD5HashFromFile(filePath string) ([]byte, int) {
