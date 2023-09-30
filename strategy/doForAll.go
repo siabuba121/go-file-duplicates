@@ -8,6 +8,7 @@ import (
 
 	"github.com/file-duplicate-search/search/fileSign"
 	"github.com/file-duplicate-search/search/prompt"
+	"github.com/file-duplicate-search/search/prompt/messages"
 	"github.com/file-duplicate-search/search/utility"
 )
 
@@ -17,15 +18,15 @@ type DoForAllStrategy struct {
 
 func CreateDoForAllStrategy() DoForAllStrategy {
 	return DoForAllStrategy{
-		name: prompt.STRATEGY_DO_FOR_ALL,
+		name: messages.STRATEGY_DO_FOR_ALL,
 	}
 }
 
 func (concreteStrategy DoForAllStrategy) Run(fileSignCollection fileSign.FileSignCollection) {
 	action := prompt.SelectDoForAllAction()
-	if action == prompt.LEAVE_FIRST_OCCURENCE_AND_REMOVE_REST {
+	if action == messages.LEAVE_FIRST_OCCURENCE_AND_REMOVE_REST {
 		leaveFirstOccurenceAndRemoveRest(fileSignCollection)
-	} else if action == prompt.REMOVE_ALL_AND_COPY_ONE_OCCURENCE_TO_NEW_CATALOG {
+	} else if action == messages.REMOVE_ALL_AND_COPY_ONE_OCCURENCE_TO_NEW_CATALOG {
 		removeAllAndCopyOneOccurenceToNewCatalog(fileSignCollection)
 	}
 }

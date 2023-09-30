@@ -11,6 +11,7 @@ import (
 
 	"github.com/file-duplicate-search/search/fileSign"
 	"github.com/file-duplicate-search/search/prompt"
+	"github.com/file-duplicate-search/search/prompt/messages"
 	"github.com/file-duplicate-search/search/strategy"
 	"github.com/file-duplicate-search/search/utility"
 )
@@ -19,8 +20,8 @@ var minSize int
 var directoryToSearch string
 
 func init() {
-	flag.IntVar(&minSize, "s", -1, "Optional parameter used to specify minimum file size")
-	flag.StringVar(&directoryToSearch, "d", "", "Directory to search for duplicates")
+	flag.IntVar(&minSize, "s", -1, messages.MIN_SIZE_PARAMETER_DESCRIPTION)
+	flag.StringVar(&directoryToSearch, "d", "", messages.DIRECTORY_PARAMETER_DESCRIPTION)
 }
 
 func main() {
@@ -70,9 +71,9 @@ func main() {
 
 	var chosenStrategyObj strategy.Strategy
 
-	if chosenStrategy == prompt.STRATEGY_DO_FOR_ALL {
+	if chosenStrategy == messages.STRATEGY_DO_FOR_ALL {
 		chosenStrategyObj = strategy.CreateDoForAllStrategy()
-	} else if chosenStrategy == prompt.STRATEGY_GO_THROUGH_ONE_BY_ONE {
+	} else if chosenStrategy == messages.STRATEGY_GO_THROUGH_ONE_BY_ONE {
 		chosenStrategyObj = strategy.CreateDoOneByOneStrategy()
 	} else {
 		panic("Not known strategy!")

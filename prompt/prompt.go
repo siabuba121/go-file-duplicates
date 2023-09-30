@@ -7,17 +7,9 @@ import (
 	"strings"
 
 	"github.com/AlecAivazis/survey/v2"
+	"github.com/file-duplicate-search/search/prompt/messages"
 	"github.com/file-duplicate-search/search/utility"
 )
-
-const SHALL_REMOVE_QUESTION = "Do you want to remove duplicates (Y/N)"
-const INVALID_ANSWER_MESSAGE = "Provided answer is not valid!"
-
-const LEAVE_FIRST_OCCURENCE_AND_REMOVE_REST = "Leave first occurence and remove rest"
-const REMOVE_ALL_AND_COPY_ONE_OCCURENCE_TO_NEW_CATALOG = "Remove all and copy one occurence to new catalog"
-
-const STRATEGY_GO_THROUGH_ONE_BY_ONE = "Go through one by one"
-const STRATEGY_DO_FOR_ALL = "Do action for all"
 
 func getPossibelYesNoAnswers() []string {
 	return []string{"Y", "N"}
@@ -26,8 +18,11 @@ func getPossibelYesNoAnswers() []string {
 func SelectStrategyQuestion() string {
 	chosenStrategy := ""
 	prompt := &survey.Select{
-		Message: "Which strategy should be used for found file duplicates?",
-		Options: []string{STRATEGY_DO_FOR_ALL, STRATEGY_GO_THROUGH_ONE_BY_ONE},
+		Message: messages.QUESTION_CHOOSE_STRATEGY,
+		Options: []string{
+			messages.STRATEGY_DO_FOR_ALL,
+			messages.STRATEGY_GO_THROUGH_ONE_BY_ONE,
+		},
 	}
 	survey.AskOne(prompt, &chosenStrategy)
 	fmt.Println("")
@@ -36,7 +31,7 @@ func SelectStrategyQuestion() string {
 }
 
 func AskIfDuplicatesShouldBeRemoved() bool {
-	return displayYesNoPrompt(SHALL_REMOVE_QUESTION)
+	return displayYesNoPrompt(messages.SHALL_REMOVE_QUESTION)
 }
 
 func displayYesNoPrompt(question string) bool {
@@ -49,7 +44,7 @@ func displayYesNoPrompt(question string) bool {
 		if isAnswerValid(answer, getPossibelYesNoAnswers()) {
 			break
 		}
-		utility.LogError(INVALID_ANSWER_MESSAGE)
+		utility.LogError(messages.INVALID_ANSWER_MESSAGE)
 		fmt.Println("")
 	}
 
@@ -74,13 +69,13 @@ func AskForCatalogName() string {
 	var answer string
 	r := bufio.NewReader(os.Stdin)
 	for {
-		utility.LogQuestion("What name should backup catalog have?")
+		utility.LogQuestion(messages.QUESTION_NAME_OF_BACKUP_CATALOG)
 		answer, _ = r.ReadString('\n')
 		answer = strings.TrimSpace(answer)
 		if answer != "" {
 			break
 		}
-		utility.LogError(INVALID_ANSWER_MESSAGE)
+		utility.LogError(messages.INVALID_ANSWER_MESSAGE)
 		fmt.Println("")
 	}
 
@@ -91,8 +86,11 @@ func AskForCatalogName() string {
 func SelectDoForAllAction() string {
 	chosenAction := ""
 	prompt := &survey.Select{
-		Message: "What action should be done against all duplicates?",
-		Options: []string{LEAVE_FIRST_OCCURENCE_AND_REMOVE_REST, REMOVE_ALL_AND_COPY_ONE_OCCURENCE_TO_NEW_CATALOG},
+		Message: messages.QUESTION_WHAT_TO_DO_WITH_DUPLICATES,
+		Options: []string{
+			messages.LEAVE_FIRST_OCCURENCE_AND_REMOVE_REST,
+			messages.REMOVE_ALL_AND_COPY_ONE_OCCURENCE_TO_NEW_CATALOG,
+		},
 	}
 	survey.AskOne(prompt, &chosenAction)
 	fmt.Println("")
