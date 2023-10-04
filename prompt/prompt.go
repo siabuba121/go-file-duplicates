@@ -84,7 +84,7 @@ func AskForCatalogName() string {
 
 }
 
-func SelectDoForAllAction() string {
+func SelectActionAgainstDuplicate() string {
 	chosenAction := ""
 	prompt := &survey.Select{
 		Message: messages.QUESTION_WHAT_TO_DO_WITH_DUPLICATES,

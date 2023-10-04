@@ -23,7 +23,7 @@ func CreateDoForAllStrategy() DoForAllStrategy {
 }
 
 func (concreteStrategy DoForAllStrategy) Run(fileSignCollection fileSign.FileSignCollection) {
-	action := prompt.SelectDoForAllAction()
+	action := prompt.SelectActionAgainstDuplicate()
 	if action == messages.LEAVE_FIRST_OCCURENCE_AND_REMOVE_REST {
 		leaveFirstOccurenceAndRemoveRest(fileSignCollection)
 	} else if action == messages.REMOVE_ALL_AND_COPY_ONE_OCCURENCE_TO_NEW_CATALOG {
