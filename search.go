@@ -14,6 +14,7 @@ import (
 	"github.com/file-duplicate-search/search/prompt/messages"
 	"github.com/file-duplicate-search/search/strategy"
 	"github.com/file-duplicate-search/search/utility"
+	"github.com/schollz/progressbar/v3"
 )
 
 var minSize int
@@ -31,8 +32,21 @@ func main() {
 		FileSigns: []fileSign.FileSign{},
 	}
 
+	fileCount := 0
+	filepath.WalkDir(directoryToSearch, func(path string, d fs.DirEntry, err error) error {
+		if !d.IsDir() {
+			fileCount++
+		}
+		return nil
+	})
+
+	bar := progressbar.Default(int64(fileCount))
+
+	utility.LogInfo(fmt.Sprintf("\n%d files to be mapped.\n", fileCount))
+
 	err := filepath.WalkDir(directoryToSearch, func(path string, d fs.DirEntry, err error) error {
 		if !d.IsDir() {
+			bar.Add(1)
 			md5Hash, size := createMD5HashFromFile(path)
 
 			if minSize != -1 && size < minSize {

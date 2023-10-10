@@ -1,6 +1,12 @@
 package fileSign
 
-import "bytes"
+import (
+	"bytes"
+	"fmt"
+
+	messages "github.com/file-duplicate-search/search/prompt/messages"
+	"github.com/file-duplicate-search/search/utility"
+)
 
 type FileSignCollection struct {
 	FileSigns []FileSign
@@ -17,11 +23,17 @@ func (FileSignCollection FileSignCollection) IsThereAnyDuplicate() bool {
 }
 
 func (FileSignCollection *FileSignCollection) DiplayResult() {
+
+	utility.LogInfo(fmt.Sprintf(messages.FOUND_X_DUPLICATES, len(FileSignCollection.FileSigns)))
 	for _, fileSign := range FileSignCollection.FileSigns {
 		if fileSign.Occurencies > 1 {
-			fileSign.DisplayInfo()
+			for _, path := range fileSign.Path {
+				utility.LogInfo(fmt.Sprintf("%s \n", path))
+			}
+			fmt.Println()
 		}
 	}
+	fmt.Println()
 }
 
 func (FileSignCollection *FileSignCollection) DoesFileExistInResult(hash []byte) bool {

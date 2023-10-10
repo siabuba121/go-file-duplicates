@@ -1,5 +1,7 @@
 package messages
 
+const FOUND_X_DUPLICATES = "\n%d duplicates found. \n\n"
+
 const SHALL_REMOVE_QUESTION = "Do you want to remove duplicates (Y/N)"
 const INVALID_ANSWER_MESSAGE = "Provided answer is not valid!"
 
